@@ -1,0 +1,8 @@
+FROM mysql:5.7-debian
+WORKDIR /app
+COPY /setup.sh .
+COPY /database.sql .
+RUN pwd && echo ""
+RUN ls -lisa && echo ""
+RUN ./setup.sh
+EXPOSE 3306

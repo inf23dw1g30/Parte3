@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+  mysql:
+    build:
+      context: ./db
+      dockerfile: Dockerfile.mysql
+    environment:
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: digimon
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - m3_network
+    container_name: Digimon_db_M3
+
+  loopback-app:
+    build:
+      context: ./lb4_digimon_app
+      dockerfile: Dockerfile.lb4
+    ports:
+      - 3000:3000
+    environment:
+      MYSQL_HOST: Digimon_db
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: '12345678'
+      MYSQL_DATABASE: digimon
+      MYSQL_LOCAL_PORT: 3306
+      MYSQL_DOCKER_PORT: 3306
+      SERVER_PORT: 3000
+    depends_on:
+      - mysql
+    networks:
+      - m3_network
+    container_name: Digimon_lb4_M3
+
+  react-admin-app:
+    build:
+      context: ./react_digimon
+      dockerfile: dockerfile.react
+    ports:
+      - 3006:3006
+    networks:
+      - m3_network
+    depends_on:
+      - loopback-app
+      - mysql
+    container_name: Digimon_react_M3
+
+volumes:
+  db-data:
+
+networks:
+  m3_network:
+    driver: bridge
